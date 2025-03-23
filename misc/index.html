@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Energy Visualization</title>
+
+    <link rel="stylesheet" type="text/css" href="./style.css">
+
+    <script src="./p5/p5.min.js"></script>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      }
+      #controlPanel {
+        margin-top: 10px;
+        padding: 10px;
+      }
+      button {
+        padding: 5px 10px;
+        margin-right: 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        color: white;
+        font-weight: 500;
+      }
+      #addButton {
+        background-color: #3b82f6;
+      }
+      #clearButton {
+        background-color: #ef4444;
+      }
+      h2 {
+        font-size: 18px;
+        margin-bottom: 5px;
+      }
+      p {
+        font-size: 14px;
+        color: #666;
+        margin-top: 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h2>Energy Landscape for Symbol Attractors</h2>
+    <p>This visualization shows an energy landscape with attractor basins (darker blue = lower energy). Red dots represent symbol centers.</p>
+    
+    <div id="canvasContainer"></div>
+    
+    <div id="controlPanel">
+      <button id="addButton" onclick="handleAddSymbol()">Add Symbol</button>
+      <button id="clearButton" onclick="handleClear()">Clear Symbols</button>
+    </div>
+    
+    <script src="./viz.js"></script>
+  </body>
+</html>

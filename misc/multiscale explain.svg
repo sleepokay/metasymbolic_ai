@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+  <!-- Background -->
+  <rect width="800" height="500" fill="#f8f9fa"/>
+  
+  <!-- Title -->
+  <text x="400" y="30" text-anchor="middle" font-family="Arial" font-size="20" font-weight="bold">Multi-scale Symbol Representation</text>
+  
+  <!-- Lower Level Space (left) -->
+  <rect x="50" y="80" width="300" height="300" fill="#e9ecef" rx="5" ry="5" stroke="#343a40" stroke-width="1"/>
+  <text x="200" y="70" text-anchor="middle" font-family="Arial" font-size="16" font-weight="bold">Lower-Level Symbol Space</text>
+  
+  <!-- Lower level basins -->
+  <circle cx="125" cy="150" r="40" fill="rgba(0, 123, 255, 0.3)" stroke="rgba(0, 123, 255, 0.6)" stroke-width="1"/>
+  <circle cx="125" cy="150" r="30" fill="rgba(0, 123, 255, 0.5)" stroke="none"/>
+  <circle cx="125" cy="150" r="20" fill="rgba(0, 123, 255, 0.7)" stroke="none"/>
+  <circle cx="125" cy="150" r="10" fill="rgba(0, 123, 255, 0.9)" stroke="none"/>
+  <circle cx="125" cy="150" r="5" fill="#dc3545" stroke="white" stroke-width="1"/>
+  <text x="125" y="150" text-anchor="middle" font-family="Arial" font-size="10" fill="white" font-weight="bold">A</text>
+  
+  <circle cx="250" cy="175" r="35" fill="rgba(40, 167, 69, 0.3)" stroke="rgba(40, 167, 69, 0.6)" stroke-width="1"/>
+  <circle cx="250" cy="175" r="25" fill="rgba(40, 167, 69, 0.5)" stroke="none"/>
+  <circle cx="250" cy="175" r="15" fill="rgba(40, 167, 69, 0.7)" stroke="none"/>
+  <circle cx="250" cy="175" r="7" fill="rgba(40, 167, 69, 0.9)" stroke="none"/>
+  <circle cx="250" cy="175" r="4" fill="#dc3545" stroke="white" stroke-width="1"/>
+  <text x="250" y="175" text-anchor="middle" font-family="Arial" font-size="10" fill="white" font-weight="bold">B</text>
+  
+  <circle cx="180" cy="280" r="45" fill="rgba(255, 193, 7, 0.3)" stroke="rgba(255, 193, 7, 0.6)" stroke-width="1"/>
+  <circle cx="180" cy="280" r="35" fill="rgba(255, 193, 7, 0.5)" stroke="none"/>
+  <circle cx="180" cy="280" r="25" fill="rgba(255, 193, 7, 0.7)" stroke="none"/>
+  <circle cx="180" cy="280" r="12" fill="rgba(255, 193, 7, 0.9)" stroke="none"/>
+  <circle cx="180" cy="280" r="6" fill="#dc3545" stroke="white" stroke-width="1"/>
+  <text x="180" y="280" text-anchor="middle" font-family="Arial" font-size="10" fill="white" font-weight="bold">C</text>
+  
+  <!-- Input pattern -->
+  <circle cx="165" cy="200" r="8" fill="#6610f2" stroke="white" stroke-width="1.5"/>
+  <text x="165" y="200" text-anchor="middle" font-family="Arial" font-size="10" fill="white" font-weight="bold">X</text>
+  
+  <!-- Activation lines -->
+  <line x1="165" y1="200" x2="125" y2="150" stroke="#6610f2" stroke-width="1.5" stroke-dasharray="4"/>
+  <line x1="165" y1="200" x2="250" y2="175" stroke="#6610f2" stroke-width="1.5" stroke-dasharray="4"/>
+  <line x1="165" y1="200" x2="180" y2="280" stroke="#6610f2" stroke-width="1.5" stroke-dasharray="4"/>
+  
+  <!-- Activation strengths -->
+  <text x="145" y="175" text-anchor="middle" font-family="Arial" font-size="10" fill="#6610f2">0.6</text>
+  <text x="210" y="185" text-anchor="middle" font-family="Arial" font-size="10" fill="#6610f2">0.4</text>
+  <text x="170" y="240" text-anchor="middle" font-family="Arial" font-size="10" fill="#6610f2">0.3</text>
+  
+  <!-- Higher Level Space (right) -->
+  <rect x="450" y="80" width="300" height="300" fill="#e9ecef" rx="5" ry="5" stroke="#343a40" stroke-width="1"/>
+  <text x="600" y="70" text-anchor="middle" font-family="Arial" font-size="16" font-weight="bold">Higher-Level Symbol Space</text>
+  
+  <!-- Coordinate system for higher level space (simplified) -->
+  <line x1="470" y1="330" x2="730" y2="330" stroke="#343a40" stroke-width="1"/>
+  <text x="730" y="345" font-family="Arial" font-size="12">A</text>
+  <line x1="500" y1="350" x2="500" y2="110" stroke="#343a40" stroke-width="1"/>
+  <text x="485" y="110" font-family="Arial" font-size="12">B</text>
+  <line x1="450" y1="280" x2="750" y2="220" stroke="#343a40" stroke-width="1" stroke-dasharray="3"/>
+  <text x="750" y="210" font-family="Arial" font-size="12">C</text>
+  
+  <!-- Higher level basin -->
+  <circle cx="580" cy="210" r="60" fill="rgba(111, 66, 193, 0.2)" stroke="rgba(111, 66, 193, 0.4)" stroke-width="1"/>
+  <circle cx="580" cy="210" r="45" fill="rgba(111, 66, 193, 0.3)" stroke="none"/>
+  <circle cx="580" cy="210" r="30" fill="rgba(111, 66, 193, 0.5)" stroke="none"/>
+  <circle cx="580" cy="210" r="15" fill="rgba(111, 66, 193, 0.7)" stroke="none"/>
+  <circle cx="580" cy="210" r="7" fill="#dc3545" stroke="white" stroke-width="1"/>
+  <text x="580" y="210" text-anchor="middle" font-family="Arial" font-size="12" fill="white" font-weight="bold">α</text>
+  
+  <!-- Activation point in higher level -->
+  <circle cx="590" cy="220" r="6" fill="#6610f2" stroke="white" stroke-width="1.5"/>
+  <text x="590" y="220" text-anchor="middle" font-family="Arial" font-size="10" fill="white" font-weight="bold">X'</text>
+  
+  <!-- Mapping arrow -->
+  <path d="M350 200 C380 200, 420 220, 450 220" fill="none" stroke="#343a40" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="400" y="190" text-anchor="middle" font-family="Arial" font-size="14">Mapping</text>
+  
+  <!-- Arrow marker definition -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#343a40"/>
+    </marker>
+  </defs>
+  
+  <!-- Legend -->
+  <rect x="50" y="400" width="700" height="80" fill="white" rx="5" ry="5" stroke="#343a40" stroke-width="1"/>
+  <text x="60" y="420" font-family="Arial" font-size="14" font-weight="bold">Legend:</text>
+  
+  <circle cx="80" cy="440" r="5" fill="#dc3545" stroke="white" stroke-width="1"/>
+  <text x="95" y="444" font-family="Arial" font-size="12">Symbol center</text>
+  
+  <circle cx="180" cy="440" r="5" fill="#6610f2" stroke="white" stroke-width="1.5"/>
+  <text x="195" y="444" font-family="Arial" font-size="12">Input pattern</text>
+  
+  <rect x="260" y="435" width="20" height="10" fill="rgba(0, 123, 255, 0.5)" stroke="none"/>
+  <text x="305" y="444" font-family="Arial" font-size="12">Attractor basin</text>
+  
+  <line x1="360" y1="440" x2="390" y2="440" stroke="#6610f2" stroke-width="1.5" stroke-dasharray="4"/>
+  <text x="425" y="444" font-family="Arial" font-size="12">Activation</text>
+  
+  <path d="M490 440 C500 440, 510 440, 520 440" fill="none" stroke="#343a40" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="555" y="444" font-family="Arial" font-size="12">Mapping between scales</text>
+</svg>
