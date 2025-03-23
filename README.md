@@ -15,22 +15,11 @@ Metasymbolic AI differs from traditional neurosymbolic approaches by:
 - **Computational Efficiency**: Reuse of relational patterns and bypassing of computation through symbolic shortcuts
 - **Symbol-Guided Processing**: Use of symbolic structures to guide neural computation
 
-## Project Status
-- Proof-of-concept implementation using GMMs and T5
-- Initial testing on mathematical reasoning tasks
-- Ongoing development of cross-scale symbolic relations
-- Performance evaluation framework established
-
-The proof-of-concept implementation uses Gaussian Mixture Models (GMMs) to identify emergent symbols in transformer activations, with T5 as the base model. The implementation focuses on demonstrating measurable efficiency gains and basic transfer learning improvements.
-
-### Research Goals
-- Demonstrate comparable performance against baseline T5 model with fewer compute resources
-- Improve sample efficiency in transfer learning scenarios
-- Provide better interpretability through symbolic structures
-- Create a cognitive architecture inspired by human concept formation
+## Current Project Status
+The proof-of-concept uses Gaussian Mixture Models (GMMs) to create symbols from underlying transformer activations, with T5 as the base model. The implementation focuses on demonstrating feasibility and assessing possible efficiency gains and transfer learning improvements from symbolic reuse.
 
 ### Next Steps
 - Expand testing to more complex reasoning tasks
-- Refine symbol management algorithms
+- Implement energy mechanics for symbol space evolution
 - Develop more sophisticated cross-scale interactions
-- Measure and optimize transfer learning efficiency
+- Measure and optimize transfer learning efficiency (if any)
