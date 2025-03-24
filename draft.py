@@ -474,21 +474,71 @@ class MetasymbolicT5:
         Modify cross-attention scores using symbol guidance.
         
         Args:
-            attention_scores: Original attention scores
+            attention_scores: Original attention scores [batch_size, num_heads, tgt_len, src_len]
             layer_idx: Decoder layer index
             
         Returns:
             Modified attention scores
         """
-        # This is a simplified implementation
-        # In a full version, we would:
-        # 1. Get current decoder activations
-        # 2. Map them to symbols
-        # 3. Generate attention bias based on symbol-token connections
-        # 4. Add bias to attention scores
+        batch_size, num_heads, tgt_len, src_len = attention_scores.shape
         
-        # For now, returning unmodified scores
-        return attention_scores
+        # 1. Get current decoder activations
+        decoder_key = f"decoder_layer_{layer_idx}"
+        if decoder_key not in self.activation_dict:
+            # If we don't have decoder activations, return unmodified scores
+            return attention_scores
+        
+        decoder_activations = self.activation_dict[decoder_key]
+        
+        # Find corresponding encoder layer (assuming we want to use symbols from same scale)
+        encoder_layer_idx = self.symbol_space.layer_scales[min(len(self.symbol_space.layer_scales) - 1, 
+                                                           layer_idx // 2)]  # Simple mapping strategy
+        
+        # 2. Map decoder activations to symbols
+        if self.symbol_space.symbols[encoder_layer_idx] is None or self.symbol_space.pca_reducers[encoder_layer_idx] is None:
+            # No symbols available for this layer
+            return attention_scores
+        
+        # Get activations and reduce dimensionality
+        dec_activations_np = decoder_activations.detach().cpu().numpy()
+        dec_batch_size, dec_seq_len, hidden_dim = dec_activations_np.shape
+        dec_activations_flat = dec_activations_np.reshape(-1, hidden_dim)
+        
+        # Apply PCA reduction
+        reduced_activations = self.symbol_space.pca_reducers[encoder_layer_idx].transform(dec_activations_flat)
+        
+        # Get symbol assignments
+        symbol_probs = self.symbol_space.symbols[encoder_layer_idx].predict_proba(reduced_activations)
+        symbol_probs = symbol_probs.reshape(dec_batch_size, dec_seq_len, -1)
+        
+        # 3. Generate attention bias from symbol-token connections
+        attention_bias = self.symbol_space.generate_attention_bias(
+            encoder_layer_idx,
+            symbol_probs,
+            batch_size,
+            src_len
+        )
+        
+        # Convert to tensor and reshape for broadcasting across heads
+        attention_bias = torch.tensor(
+            attention_bias, 
+            dtype=attention_scores.dtype, 
+            device=attention_scores.device
+        ).unsqueeze(1).unsqueeze(1)  # [batch_size, 1, 1, src_len]
+        
+        # 4. Add bias to attention scores
+        # Scale bias (typically 0.1 to 1.0 depending on how strong you want the influence to be)
+        bias_scale = 0.3
+        scaled_bias = attention_bias * bias_scale
+        
+        # Add to original scores
+        modified_scores = attention_scores + scaled_bias
+        
+        # Log statistics about modification (in a real implementation)
+        # avg_change = (modified_scores - attention_scores).abs().mean().item()
+        # print(f"Average attention score change: {avg_change:.4f}")
+        
+        return modified_scores
     
     def generate(self, 
                 input_ids: torch.Tensor, 
@@ -534,23 +584,94 @@ class MetasymbolicT5:
         if not use_symbols:
             return standard_outputs, stats
         
-        # Register hooks for symbolic guidance
+        # For symbol-guided generation, we need to:
+        # 1. Process the encoder input to build symbol-token connections
+        # 2. Add hooks to intercept and modify cross-attention
+        # 3. Run generation with these hooks active
+        
+        # First, encode the input and build symbol connections
         self._register_hooks()
         
-        # Time generation with symbolic guidance
-        start_time = time.time()
+        # Run encoder to build symbol space for this input
+        encoder_outputs = self.model.encoder(
+            input_ids=input_ids,
+            attention_mask=attention_mask,
+            return_dict=True
+        )
         
-        # This would be our custom generation loop with symbolic guidance
-        # For the proof of concept, we're just simulating the improvement
-        # In a full implementation, we would modify the T5 generation logic
+        # Extract and encode symbols from activation patterns
+        encoder_layer_activations = {}
+        for layer in self.symbol_space.layer_scales:
+            key = f"encoder_layer_{layer}"
+            if key in self.activation_dict:
+                encoder_layer_activations[layer] = self.activation_dict[key]
         
-        # Simulate symbolic generation (for demonstration purposes)
-        symbolic_outputs = standard_outputs  # Same result, but theoretically faster
-        stats['time_with_symbols'] = time.time() - start_time
+        # Update symbol-token connections
+        for layer, activations in encoder_layer_activations.items():
+            if self.symbol_space.symbols[layer] is not None:
+                # Get reduced activations
+                activations_np = activations.detach().cpu().numpy()
+                batch_size, seq_len, hidden_dim = activations_np.shape
+                activations_flat = activations_np.reshape(-1, hidden_dim)
+                reduced_activations = self.symbol_space.pca_reducers[layer].transform(activations_flat)
+                
+                # Get symbol probabilities
+                probs = self.symbol_space.symbols[layer].predict_proba(reduced_activations)
+                reshaped_probs = probs.reshape(batch_size, seq_len, -1)
+                
+                # Update token-symbol connections
+                input_tokens = input_ids.reshape(-1).cpu().tolist()
+                self.symbol_space.encode_symbols({layer: activations}, input_tokens)
         
-        # Add some simulated statistics for concept demonstration
-        stats['shortcut_count'] = int(0.3 * max_length)  # Assume 30% of tokens used shortcuts
-        stats['total_steps'] = max_length
+        # Register hooks for cross-attention modification
+        cross_attention_hooks = []
+        
+        def modify_cross_attention_hook(layer_idx):
+            def hook(module, inputs, outputs):
+                # The outputs are the attention scores before softmax
+                modified_scores = self._modify_cross_attention(outputs, layer_idx)
+                return modified_scores
+            return hook
+        
+        # Add hooks to cross-attention modules in the decoder
+        for layer_idx, layer in enumerate(self.model.decoder.block):
+            # Find the cross-attention module
+            cross_attn = layer.layer[1].EncDecAttention.q
+            # Register hook
+            hook = cross_attn.register_forward_hook(modify_cross_attention_hook(layer_idx))
+            cross_attention_hooks.append(hook)
+        
+        try:
+            # Time generation with symbolic guidance
+            start_time = time.time()
+            
+            # Generate with cross-attention modification
+            symbolic_outputs = self.model.generate(
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+                encoder_outputs=encoder_outputs,
+                max_length=max_length,
+                **kwargs
+            )
+            
+            stats['time_with_symbols'] = time.time() - start_time
+            
+            # Count shortcuts that were actually used
+            shortcut_count = 0
+            for layer in self.symbol_space.layer_scales:
+                # This is an estimate based on cache usage
+                if layer in self.activation_dict:
+                    shortcut_count += len(self.symbol_space.symbol_cache.get(layer, {}))
+            
+            stats['shortcut_count'] = shortcut_count
+            stats['total_steps'] = max_length
+            
+            return symbolic_outputs, stats
+            
+        finally:
+            # Remove hooks
+            for hook in cross_attention_hooks:
+                hook.remove()
         
         return symbolic_outputs, stats
     
