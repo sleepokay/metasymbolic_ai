@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metasymbolic AI Field Simulation</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="container">
+        <div id="simulation-container"></div>
+        <div id="ui-container">
+            <div id="controls">
+                <h2>Simulation Controls</h2>
+                <div class="control-group">
+                    <label for="rule-select">Rule Set:</label>
+                    <select id="rule-select">
+                        <option value="gray-scott">Gray-Scott Reaction-Diffusion</option>
+                        <option value="kuramoto">Kuramoto Oscillators</option>
+                        <option value="turing">Turing Patterns</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="visualization-mode">Visualization:</label>
+                    <select id="visualization-mode">
+                        <option value="state">State Values</option>
+                        <option value="orientation">Orientation</option>
+                        <option value="stability">Stability</option>
+                        <option value="flow">Flow Field</option>
+                    </select>
+                </div>
+                <div id="dynamic-controls">
+                    <!-- Controls will be populated based on selected rule set -->
+                </div>
+                <div class="button-group">
+                    <button id="play-pause">Pause</button>
+                    <button id="reset">Reset</button>
+                    <button id="randomize">Randomize</button>
+                </div>
+            </div>
+            <div id="info-panel">
+                <h2>Field Info</h2>
+                <div id="stats-container"></div>
+                <div id="info-display">
+                    <!-- Info about selected points/regions will appear here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Third-party libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stats.js/r17/Stats.min.js"></script>
+
+    <!-- Application scripts -->
+    <script src="js/utils/OrbitControls.js"></script>
+    <script src="js/utils/shaderLoader.js"></script>
+    <script src="js/renderer.js"></script>
+    <script src="js/field.js"></script>
+    <script src="js/simulation.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

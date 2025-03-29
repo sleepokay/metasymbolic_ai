@@ -1,0 +1,15 @@
+{
+    "name": "metasymbolic-simulation",
+    "version": "0.1.0",
+    "description": "Low-dimensional shader simulation for Metasymbolic AI framework",
+    "main": "index.js",
+    "scripts": {
+      "start": "http-server -c-1",
+      "dev": "http-server -c-1 -o"
+    },
+    "author": "",
+    "license": "MIT",
+    "devDependencies": {
+      "http-server": "^14.1.1"
+    }
+  }

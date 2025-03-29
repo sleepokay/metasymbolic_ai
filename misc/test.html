@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>US Counties Population & Political Leaning</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://d3js.org/topojson.v3.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        #container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .county {
+            stroke: #fff;
+            stroke-width: 0.5px;
+        }
+        .state-boundary {
+            fill: none;
+            stroke: #333;
+            stroke-width: 1px;
+        }
+        .tooltip {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 4px;
+            pointer-events: none;
+            opacity: 0;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            transition: opacity 0.2s;
+            max-width: 250px;
+        }
+        .tooltip h3 {
+            margin-top: 0;
+            margin-bottom: 5px;
+        }
+        .tooltip p {
+            margin: 5px 0;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 0 10px;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+        }
+        .republican {
+            color: #d73027;
+            font-weight: bold;
+        }
+        .democrat {
+            color: #4575b4;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>US Counties: Population & Political Leaning</h1>
+        <div id="map"></div>
+        <div id="tooltip" class="tooltip"></div>
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #efedf5;"></div>
+                <span>Low Population</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #756bb1;"></div>
+                <span>High Population</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set up the dimensions and projection
+        const width = 960;
+        const height = 600;
+        const svg = d3.select("#map")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+        // Create a tooltip div
+        const tooltip = d3.select("#tooltip");
+
+        // Define the map projection
+        const projection = d3.geoAlbersUsa()
+            .scale(1300)
+            .translate([width / 2, height / 2]);
+
+        // Define the path generator
+        const path = d3.geoPath()
+            .projection(projection);
+
+        // Define color scale for population density
+        const colorScale = d3.scaleSequential(d3.interpolatePurples)
+            .domain([0, 5000]); // will be updated when data loads
+
+        // Load the US county data and population data
+        Promise.all([
+            d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json"),
+            d3.csv("https://raw.githubusercontent.com/plotly/datasets/master/fips-unemp-16.csv", d => {
+                return {
+                    id: d.fips,
+                    rate: +d.unemp, // Using unemployment data as a stand-in for population
+                    // In a real app, you would load actual population and political data
+                };
+            })
+        ]).then(([us, unemploymentData]) => {
+            // Function to generate random political leaning for demo purposes
+            // In a real application, you would use actual data
+            const generatePoliticalData = () => {
+                const rand = Math.random();
+                if (rand > 0.6) return "Republican";
+                else if (rand > 0.2) return "Democrat";
+                else return "Swing";
+            };
+            
+            // Function to generate random population for demo purposes
+            // In a real application, you would use actual data
+            const generatePopulation = () => {
+                return Math.floor(Math.random() * 1000000) + 1000;
+            };
+
+            // Create a lookup table for the unemployment data
+            const unemploymentById = {};
+            unemploymentData.forEach(d => {
+                unemploymentById[d.id] = d.rate;
+            });
+
+            // Get the population values for the color scale domain
+            const populationValues = Object.values(unemploymentById);
+            colorScale.domain([0, d3.max(populationValues)]);
+
+            // Draw counties
+            svg.append("g")
+                .selectAll("path")
+                .data(topojson.feature(us, us.objects.counties).features)
+                .enter().append("path")
+                .attr("class", "county")
+                .attr("d", path)
+                .attr("fill", d => {
+                    const rate = unemploymentById[d.id] || 0;
+                    return colorScale(rate);
+                })
+                .on("mouseover", function(event, d) {
+                    // Get county name from the TopoJSON
+                    const countyName = d.properties.name;
+                    const stateName = us.objects.states.geometries.find(state => 
+                        state.id === d.id.slice(0, 2)).properties.name;
+                    
+                    // Generate sample data (replace with real data in production)
+                    const population = generatePopulation().toLocaleString();
+                    const politicalLeaning = generatePoliticalData();
+                    let politicalClass = "";
+                    if (politicalLeaning === "Republican") politicalClass = "republican";
+                    if (politicalLeaning === "Democrat") politicalClass = "democrat";
+
+                    // Show tooltip
+                    tooltip.style("opacity", 1)
+                           .style("left", (event.pageX + 15) + "px")
+                           .style("top", (event.pageY - 30) + "px")
+                           .html(`
+                                <h3>${countyName} County, ${stateName}</h3>
+                                <p><strong>Population:</strong> ${population}</p>
+                                <p><strong>Political Leaning:</strong> <span class="${politicalClass}">${politicalLeaning}</span></p>
+                            `);
+                })
+                .on("mouseout", function() {
+                    tooltip.style("opacity", 0);
+                });
+
+            // Draw state boundaries
+            svg.append("path")
+                .datum(topojson.mesh(us, us.objects.states, (a, b) => a !== b))
+                .attr("class", "state-boundary")
+                .attr("d", path);
+        }).catch(error => console.log(error));
+    </script>
+</body>
+</html>
